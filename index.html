@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"Under the 5th National Steering Committee (NSC) meeting of Pradhan Mantri Skilling and Employability Transformation through Upgraded ITIs (PM-SETU), Strategic Investment Plans (SIPs) worth ₹735.70 crore were approved for three Industrial Training Institute (ITI) clusters. Which combination correctly matches the clusters with their approved investments?", options:["Bhiwadi – Rajasthan – ₹241 crore; Medchal – Telangana – ₹254.30 crore; Meerut – Uttar Pradesh – ₹240.40 crore","Bhiwadi – Rajasthan – ₹240.40 crore; Medchal – Telangana – ₹241 crore; Meerut – Uttar Pradesh – ₹254.30 crore","Bhiwadi – Uttar Pradesh – ₹241 crore; Medchal – Rajasthan – ₹254.30 crore; Meerut – Telangana – ₹240.40 crore","Bhiwadi – Rajasthan – ₹254.30 crore; Medchal – Telangana – ₹240.40 crore; Meerut – Uttar Pradesh – ₹241 crore"], answer:0},
+
+{q:"The 5th National Steering Committee (NSC) meeting under PM-SETU approved ₹735.70 crore for three ITI clusters and increased the cumulative sanctioned investment to ₹2,171 crore. Across how many ITI clusters did the cumulative sanctioned investment reach this level?", options:["7 ITI clusters","8 ITI clusters","9 ITI clusters","10 ITI clusters"], answer:2},
+
+{q:"The Memorandum of Understanding (MoU) between the Department of Food & Public Distribution (DFPD) and Food Corporation of India (FCI) for FY2026-27 aims to modernise foodgrain management by reducing storage losses, improving logistics and strengthening quality control. Under which Union Ministry does DFPD function according to the given details?", options:["Ministry of Agriculture and Farmers Welfare","Ministry of Consumer Affairs, Food and Public Distribution","Ministry of Rural Development","Ministry of Food Processing Industries"], answer:1},
+
+{q:"The Department of Food & Public Distribution (DFPD) and Food Corporation of India (FCI) signed an MoU in New Delhi for FY2026-27 to improve operational efficiency and accountability in foodgrain management. Which technology-based intervention is specifically mentioned for assessing depot-level infrastructure and operational efficiency?", options:["Kisan Suvidha Portal","Depot Darpan Portal","Anna Vikas Dashboard","Foodgrain Quality Monitoring Portal"], answer:1},
+
+{q:"Food Corporation of India (FCI), a major organisation responsible for procurement, storage, movement and distribution of foodgrains, was established under the Food Corporations Act, 1964. In which year was FCI established?", options:["1964","1965","1966","1967"], answer:1},
+
+{q:"The Indian Army established AASHVAST at the Directorate General of Electronics and Mechanical Engineering (DG EME) Headquarters in New Delhi to detect Chinese components and assess vulnerabilities in unmanned systems, particularly drones. What does AASHVAST stand for?", options:["Assessment and Analysis of Electronic Systems Hardware for Vulnerabilities and Security Threats","Advanced Analysis of Electronic Hardware Systems for Vulnerability Assessment and Strategic Technology","Assessment of Aerospace Hardware and Systems for Vulnerabilities, Security and Threats","Advanced Assessment and Analysis of Electronic Systems for Hardware Verification and Security Testing"], answer:0},
+
+{q:"The AASHVAST laboratory established by the Indian Army under the Directorate General of Electronics and Mechanical Engineering (DG EME) is designed as an air-gapped and read-only system. What is the primary implication of an air-gapped system in this context?", options:["It operates only through satellite communication to improve testing speed","It remains isolated from external networks, reducing the risk of information leakage or cyberattack","It automatically modifies the tested equipment to remove malicious components","It stores all assessed equipment data on an internet-connected cloud server"], answer:1},
+
+{q:"AASHVAST, developed by QuickPay Technology Services Pvt Ltd (QuickPay Tech) for the Indian Army, is specifically designed to support defence-platform evaluation and cyber resilience. Which statement correctly describes its read-only feature?", options:["The laboratory can remotely rewrite software installed on the equipment","The laboratory can modify hardware configurations during every assessment","The laboratory does not write or change information on the equipment being assessed","The laboratory transfers all equipment information to an external network for analysis"], answer:2},
+
+{q:"India and Japan conducted the second edition of their bilateral air combat exercise Veer Guardian-2026 at Air Force Station Jodhpur, Rajasthan, from 9–22 September 2026. Which two air forces participated in this exercise?", options:["Indian Air Force and Japan Air Self-Defence Force","Indian Air Force and Japan Maritime Self-Defence Force","Indian Navy and Japan Air Self-Defence Force","Indian Army Aviation Corps and Japan Air Self-Defence Force"], answer:0},
+
+{q:"During Veer Guardian-2026, the Indian Air Force (IAF) deployed LCA Tejas, Su-30 MKI and Rafale aircraft, while Japan participated with F-2A fighter aircraft. Approximately how many Japanese personnel were part of the contingent along with three F-2A aircraft?", options:["Around 80 personnel","Around 100 personnel","Around 110 personnel","Around 130 personnel"], answer:2},
+
+{q:"The second edition of Veer Guardian-2026 was conducted for 14 days at Air Force Station Jodhpur, Rajasthan, with the objective of enhancing interoperability, tactical proficiency and operational synergy between India and Japan. Where was the first edition of this bilateral air exercise held?", options:["India in 2022","Japan in 2023","Japan in 2024","India in 2025"], answer:1},
+
+{q:"RNFI Services Ltd received in-principle authorisation from the Reserve Bank of India (RBI) to operate as a Payment Aggregator–Physical (PA-P), enabling physical or in-store payment services through its existing distribution network. Under which legislation was this authorisation granted?", options:["Banking Regulation Act, 1949","Payment and Settlement Systems Act, 2007","Companies Act, 2013","Information Technology Act, 2000"], answer:1},
+
+{q:"Along with RNFI Services Ltd, the Reserve Bank of India (RBI) also granted approval to other entities in the payments and banking ecosystem. Which company, a wholly owned subsidiary of PB Fintech, began commercial operations as a Payment Aggregator (PA) after RBI authorisation in February 2026?", options:["PB Pay Pvt Ltd","RNFI Services Ltd","ICICI Prudential Asset Management Company","PB Financial Services Ltd"], answer:0},
+
+{q:"The Reserve Bank of India (RBI) approved ICICI Prudential Asset Management Company to acquire an aggregate holding of up to a specified percentage of the paid-up share capital or voting rights of CSB Bank Ltd. What was the approved limit?", options:["9.50%","9.75%","9.95%","10.00%"], answer:2},
+
+{q:"Niyo secured a Payment Service Provider (PSP) licence from the International Financial Services Centres Authority (IFSCA) at GIFT City, Gandhinagar, Gujarat. The licence is intended to help Niyo expand its cross-border financial services beyond travel forex. Which area was NOT specifically listed among its expansion areas?", options:["International education","Overseas employment","Global spending","Domestic agricultural lending"], answer:3},
+
+{q:"Niyo, founded in 2015 by Vinay Bagri and Virender Bisht, is headquartered in Bengaluru and received a Payment Service Provider (PSP) licence from the International Financial Services Centres Authority (IFSCA). What business model will support its expanded cross-border financial services?", options:["A purely branch-based model without digital services","A combination of digital technology platform and physical branch network","A government-operated banking correspondent model","A wholesale-only model focused exclusively on institutional clients"], answer:1},
+
+{q:"Jindal Stainless Ltd (JSL) signed a Technical Assistance Agreement (TAA) with Japan's JFE Steel Corporation to improve manufacturing capabilities for selected ferritic stainless-steel grades. Which of the following is a characteristic of ferritic stainless steel mentioned in the given details?", options:["Nickel-rich composition with an austenitic microstructure","Chromium-rich composition with a ferritic microstructure","Carbon-rich composition with a martensitic microstructure","Aluminium-rich composition with a pearlitic microstructure"], answer:1},
+
+{q:"The Technical Assistance Agreement (TAA) between Jindal Stainless Ltd (JSL) and Japan's JFE Steel Corporation covers applications across sectors such as automotive components, railway coaches, kitchen equipment, industrial machinery and construction. What is the primary objective of this agreement?", options:["To replace all stainless-steel production with aluminium","To improve manufacturing capabilities, product quality, practices and process efficiency","To establish a joint venture for exporting iron ore to Japan","To develop a new domestic banking and financing platform for steel producers"], answer:1},
+
+{q:"GalaxEye became the first Indian startup to secure a US patent for satellite imaging technology based on its core OptoSAR technology. OptoSAR combines which two imaging technologies to coordinate satellite observations?", options:["Optical sensors and Synthetic Aperture Radar (SAR) sensors","Thermal sensors and LiDAR sensors","Infrared sensors and ultraviolet sensors","Multispectral cameras and GPS receivers"], answer:0},
+
+{q:"GalaxEye’s OptoSAR technology is designed to synchronise optical and Synthetic Aperture Radar (SAR) sensors and address spatial and temporal differences between optical and radar imagery. Which of the following is NOT listed as an application of this technology in the given details?", options:["National security","Agriculture","Maritime intelligence","Retail banking branch management"], answer:3},
+
+{q:"National Aluminium Company Limited (NALCO) and UAE-based Emirates Global Aluminium (EGA) signed a technology licensing agreement to expand NALCO’s aluminium smelter at Angul, Odisha. Which EGA technology will be used for the expansion?", options:["DX+ Ultra","DX+ Prime","EGA-Smelter 500","Ultra Alumina X"], answer:0},
+
+{q:"Under the technology licensing agreement between National Aluminium Company Limited (NALCO) and Emirates Global Aluminium (EGA), EGA will provide licensing, engineering designs, technical expertise and implementation support. The expansion will add 0.5 MTPA capacity. Approximately what will NALCO’s total production capacity become?", options:["0.75 MTPA","1.0 MTPA","1.25 MTPA","1.5 MTPA"], answer:1},
+
+{q:"The Council for Agricultural Science and Technology (CAST) named Indian-American scientist Dr. Karim Maredia as the winner of the Borlaug CAST Communication Award (BCCA) 2026. Which institution is he associated with as Associate Dean and Director of the World Agriculture Center (WAC)?", options:["Michigan State University","University of California, Davis","Cornell University","Iowa State University"], answer:0},
+
+{q:"Dr. Karim Maredia has spent over 30 years at Michigan State University (MSU) and established the World Knowledge and Technology Access Program (WorldTAP). How many professionals had he trained through his work, according to the given details?", options:["More than 5,000 professionals from 40 countries","More than 10,000 professionals from 60 countries","More than 15,000 professionals from 80 countries","More than 20,000 professionals from 100 countries"], answer:2},
+
+{q:"Union Minister Amit Shah presented the President’s Colour, also known as Rashtrapati ka Nishan, to Goa Police at Panaji. The recognition honoured Goa Police for more than 80 years of service, courage and professionalism. Which initiative was also launched on the occasion to support the national cybercrime helpline 1930?", options:["AI-based call agent","Blockchain-based complaint portal","National Cybercrime Mobile Force","AI-based digital FIR registration platform"], answer:0},
+
+{q:"The AI-based call agent launched for the national cybercrime helpline 1930 initially supports Konkani, Marathi and Hindi, with a planned expansion to all languages included in the Eighth Schedule of the Constitution. How many languages are covered by the planned expansion?", options:["18 languages","20 languages","22 languages","24 languages"], answer:2},
+
+{q:"Ladakh Lieutenant Governor Vinai Kumar Saxena was given additional charge of the Lieutenant Governor of Jammu & Kashmir (J&K) while continuing his existing duties in Ladakh. Why was this additional arrangement made?", options:["The J&K Lieutenant Governor was appointed to the Union Cabinet","The incumbent J&K Lieutenant Governor Manoj Sinha was on leave or an official visit to the USA","The J&K administration was temporarily transferred to Ladakh","The President dissolved the J&K administration pending elections"], answer:1},
+
+{q:"Vinai Kumar Saxena, while holding additional charge of Jammu & Kashmir (J&K), was entrusted with a specific constitutional responsibility involving the newly appointed Chief Justice of the High Court of J&K and Ladakh. Whose oath of office was he required to administer?", options:["Justice V. Kameswar Rao","Justice Pushpendra Singh Bhati","Justice Mahesh Chandra Tripathi","Justice Sanjay Kumar Agrawal"], answer:1},
+
+{q:"The Defence Research and Development Organisation (DRDO) launched SHIELD under its Technology Development Fund (TDF) to test vulnerabilities of critical electronic systems against high-power microwave attacks. What does SHIELD stand for?", options:["S-band High-Power Microwave Integrated Evaluation for Lethality and Damage","Strategic High-Intensity Electronic Laser Defence","S-band High-Intensity Electronic Warfare and Lethality Development","Systematic High-Power Integrated Evaluation for Laser Defence"], answer:0},
+
+{q:"The DRDO’s SHIELD programme uses Gallium Nitride (GaN)-based Solid-State Power Amplifier (SSPA) technology and can generate a peak far-field strength of at least 3 kV/m. What is the primary purpose of the programme?", options:["To improve satellite communication bandwidth for civilian networks","To test vulnerabilities of critical electronic systems against high-power microwave attacks","To manufacture commercial microwave ovens using defence technology","To replace all conventional radar systems with optical sensors"], answer:1},
+
+{q:"Tung Chee-hwa, who passed away at the age of 89, is remembered as Hong Kong's first post-colonial leader. After the end of British rule in 1997, he became the first leader of which administrative region and served until 2005?", options:["Hong Kong Special Administrative Region of China","Macau Special Administrative Region of China","Shanghai Special Administrative Region of China","Guangzhou Special Administrative Region of China"], answer:0},
+
+{q:"Tung Chee-hwa joined the committee involved in drafting Hong Kong's Basic Law in 1985 and later became its first post-colonial leader in 1997. Before joining his family business in 1969, where had he worked?", options:["General Electric in the United States","General Motors in the United States","IBM Corporation in the United States","Ford Motor Company in the United States"], answer:0},
+
+{q:"The International Day of Clean Air for Blue Skies is observed annually on 7 September to promote international cooperation against air pollution. What was the official theme of the 2026 observance?", options:["Clean Air for Climate Action","Clean Air for Sustainable Development","Healthy Skies for a Greener Future","Air Quality for Climate Resilience"], answer:0},
+
+{q:"The International Day of Clean Air for Blue Skies was established through a United Nations General Assembly resolution adopted in 2019, with the first observance held in 2020. Which UNGA Resolution established this observance?", options:["UNGA Resolution 74/212","UNGA Resolution 77/241","UNGA Resolution 75/215","UNGA Resolution 73/203"], answer:0},
+
+{q:"For the 2026 Asia-Pacific commemoration of the International Day of Clean Air for Blue Skies, the 7th commemoration was hosted by the United Nations Economic and Social Commission for Asia and the Pacific (UNESCAP). In which city was the event held?", options:["Bangkok, Thailand","Jakarta, Indonesia","Manila, Philippines","Kuala Lumpur, Malaysia"], answer:0},
+
+{q:"The International Day of Police Cooperation is observed every year on 7 September to highlight the role of law-enforcement agencies in international security and cooperation. What was the theme of the 2026 observance?", options:["Protecting against Vulnerability – Building Trust and Legitimacy in Policing","Strengthening Global Policing – Security, Justice and Cooperation","Building Safer Communities – Trust, Integrity and Accountability","Global Police Cooperation – Protecting People and Strengthening Security"], answer:0},
+
+{q:"The International Day of Police Cooperation was first observed on 7 September 2023, coinciding with the centenary of INTERPOL. The date was chosen because it marks the establishment of which predecessor organisation of INTERPOL?", options:["International Criminal Police Commission (ICPC)","International Police Coordination Council (IPCC)","International Criminal Justice Commission (ICJC)","International Law Enforcement Cooperation Council (ILECC)"], answer:0},
+
+{q:"Uttarakhand Chief Minister Pushkar Singh Dhami launched the 'Mukhyamantri Yuva Bhavishya Nirman Yojana' to provide free online coaching and quality study resources for competitive examinations. How many students were targeted in the first phase?", options:["11,000 students","12,000 students","10,000 students","15,000 students"], answer:0},
+
+{q:"The Mukhyamantri Yuva Bhavishya Nirman Yojana of Uttarakhand covers several competitive and professional examinations, including UPSC, State PSC, SSC, Railways and Banking. Which of the following is also specifically included among the covered examinations?", options:["CAT and MAT","CLAT and AILET","NEET and CUET","CA Foundation and CMA Foundation"], answer:0},
+
+{q:"During his Gujarat and Maharashtra visit on 8 September 2026, Prime Minister Narendra Modi inaugurated the final three sections of the Western Dedicated Freight Corridor (WDFC), thereby completing the corridor between JNPT and Dadri. What is the approximate overall length of the WDFC?", options:["1,506 km","1,326 km","1,780 km","1,214 km"], answer:0},
+
+{q:"The final three sections of the Western Dedicated Freight Corridor (WDFC), inaugurated during PM Narendra Modi's September 2026 visit, involved an investment of more than ₹20,700 crore and covered 326 route km. Which location is the western-end port of this corridor?", options:["Jawaharlal Nehru Port Trust (JNPT), Maharashtra","Mundra Port, Gujarat","Deendayal Port, Gujarat","Kandla Port, Gujarat"], answer:0},
+
+{q:"The 7th Global Fintech Fest (GFF) 2026 was inaugurated by Prime Minister Narendra Modi during his Mumbai visit. The four-day event was held from 8 to 11 September 2026. What was its theme?", options:["Potential to Impact: Agentic AI, Tokenisation, Quantum – Trusted, Connected, Global Systems for Inclusive Finance","Fintech for All: Digital India, Global Payments and Inclusive Innovation","Building the Future of Finance: AI, Blockchain and Digital Public Infrastructure","Transforming Finance: Innovation, Inclusion and Sustainable Digital Growth"], answer:0},
+
+{q:"The 9th Rashtriya Poshan Maah 2026 was launched by Union Minister Annapurna Devi under the Ministry of Women & Child Development. What was the campaign theme for 2026?", options:["Hamari Anganwadi Hamari Jimmedari","Saksham Poshan Swasth Bharat","Poshan Se Pragati Tak","Suposhit Bharat Swasth Bharat"], answer:0},
+
+{q:"The 9th Rashtriya Poshan Maah 2026 was organised as a month-long nationwide nutrition campaign beginning in September. What was the campaign period specified in the given details?", options:["9 September to 8 October 2026","1 September to 30 September 2026","8 September to 7 October 2026","10 September to 9 October 2026"], answer:0},
+
+{q:"The 9th Rashtriya Poshan Maah 2026 also marked 10 years of the Pradhan Mantri Matru Vandana Yojana (PMMVY), with a saturation drive for eligible pregnant and lactating women. Which ministry implements the Poshan Abhiyaan mentioned in the static details?", options:["Ministry of Women & Child Development","Ministry of Health and Family Welfare","Ministry of Rural Development","Ministry of Social Justice and Empowerment"], answer:0},
+
+{q:"The Cabinet Committee on Economic Affairs (CCEA), chaired by Prime Minister Narendra Modi, approved eight railway multitracking projects involving ₹20,804 crore across 31 districts in nine states. Approximately how much network addition will these projects provide to Indian Railways?", options:["656 km","526 km","726 km","606 km"], answer:0},
+
+{q:"Under the eight railway multitracking projects approved by the Cabinet Committee on Economic Affairs (CCEA), five projects costing ₹10,021 crore cover 17 districts in Tamil Nadu, Andhra Pradesh, Karnataka and Telangana. Approximately how many villages are expected to benefit from these five projects?", options:["2,121 villages","2,012 villages","2,212 villages","1,921 villages"], answer:0},
+
+{q:"The Ministry of Electronics & Information Technology (MeitY) dataset identified Karnataka as the leading state under ChipIN Centre semiconductor support. Which combination correctly represents Karnataka's reported performance?", options:["81 organisations, 73 tape-outs and 88 lakh EDA tool-use hours","79 organisations, 73 tape-outs and 88 lakh EDA tool-use hours","81 organisations, 33 tape-outs and 73 lakh EDA tool-use hours","73 organisations, 81 tape-outs and 88 lakh EDA tool-use hours"], answer:0},
+
+{q:"The ChipIN Centre was launched by the Ministry of Electronics & Information Technology (MeitY) at C-DAC as a national hub for semiconductor design infrastructure, tools and technical expertise. What does the term 'tape-out' refer to in semiconductor design?", options:["The final stage when the completed chip design is prepared for fabrication","The initial stage when semiconductor specifications are converted into circuit diagrams","The process of physically assembling semiconductor wafers into finished devices","The testing stage in which fabricated chips are checked for electrical performance"], answer:0},
+
+{q:"The Ministry of Coal launched the first sector-specific Comprehensive CSR Framework for Indian coal companies in collaboration with Coal India Limited (CIL), aiming to make CSR activities more transparent, measurable and outcome-oriented. Which institution prepared this framework?", options:["Indian Institute of Corporate Affairs (IICA)","National Institute for Transforming India (NITI Aayog)","Indian Institute of Management Ahmedabad (IIMA)","National Skill Development Corporation (NSDC)"], answer:0},
+
+{q:"Coal India Limited (CIL), associated with the first sector-specific CSR framework for Indian coal companies, is a Maharatna Central Public Sector Enterprise under the Ministry of Coal. When was Coal India Limited established?", options:["1975","1978","1980","1965"], answer:0},
+
+{q:"The Ministry of Statistics and Programme Implementation (MoSPI) launched the Quarterly Progress Report (QPR) Portal on Data Harmonisation to strengthen India's National Data System and improve administrative-data quality. Which framework is used for quality checks under the portal?", options:["Statistical Quality Assurance Framework (SQAF)","National Statistical Data Quality Framework (NSDQF)","National Data Validation Framework (NDVF)","Statistical Information Harmonisation Framework (SIHF)"], answer:0},
+
+{q:"The QPR Portal on Data Harmonisation launched by MoSPI includes automated validation, dashboards, common unique identifiers and cross-verification with the National Metadata Structures (NMDS) portal. What is the primary purpose of the portal?", options:["To harmonise administrative data and strengthen India's National Data System","To replace the national population census with automated administrative records","To create a unified digital payment system for government statistical agencies","To monitor only the financial expenditure of centrally sponsored schemes"], answer:0},
+
+{q:"Manipal Academy of Higher Education (MAHE) was selected as one of three Indian host institutions for the US–India TRUST Fellowship 2026–27. Which set correctly lists the three Indian host institutions mentioned in the details?", options:["MAHE, IIT Madras and IISc Bengaluru","MAHE, IIT Bombay and IIT Delhi","MAHE, IIT Kanpur and IISc Bengaluru","MAHE, IIT Hyderabad and IIT Madras"], answer:0},
+
+{q:"The US–India TRUST Fellowship 2026–27, facilitated by the US Consulate General Chennai along with MAHE, IIT Madras and IISc Bengaluru, aims to strengthen scientific and technological collaboration. What is the duration of the fellowship?", options:["12 months","6 months","18 months","24 months"], answer:0},
+
+{q:"Project CHAYANKAN is being undertaken through a tripartite MoU involving NIT Rourkela, the National Remote Sensing Centre (NRSC) of ISRO and the Tea Board of India. What is the main purpose of this project?", options:["AI-based monitoring of tea plantations","AI-based monitoring of coal-mining regions","Satellite-based monitoring of wheat procurement","Drone-based monitoring of coastal fishing activities"], answer:0},
+
+{q:"The NIPL–FOMO Pay partnership enables merchants in Singapore to accept UPI QR payments from Indian tourists. Under the arrangement, Indian tourists pay in INR through UPI apps while Singapore merchants receive settlement in which currency?", options:["Singapore Dollar (SGD)","US Dollar (USD)","Indian Rupee (INR)","Hong Kong Dollar (HKD)"], answer:0},
+
+{q:"NPCI International Payments Limited (NIPL), which partnered with Singapore-based FOMO Pay to expand UPI QR acceptance, is a wholly owned subsidiary of NPCI. When was NIPL incorporated?", options:["3 April 2020","1 April 2019","15 August 2020","3 April 2021"], answer:0},
+
+{q:"ONGC announced a ₹2,000 crore Alternative Investment Fund (AIF) to support deep-tech energy startups under a partnership involving MC²⁺ Foundation, IIT Bombay and SINE. What is the maximum potential funding support specified for an individual early-stage startup?", options:["Up to ₹2 crore","Up to ₹1 crore","Up to ₹1.5 crore","Up to ₹2.5 crore"], answer:0},
+
+{q:"The proposed JSW Group–Volkswagen arrangement involves a non-binding MoU for a 51:49 joint venture through Škoda Auto Volkswagen India Pvt Ltd (SAVWIPL), with a focus on passenger vehicles, EVs, hybrids and ICE vehicles. What combined annual manufacturing capacity is proposed for the Chhatrapati Sambhajinagar and Chakan facilities?", options:["About 4 lakh vehicles per year","About 3 lakh vehicles per year","About 5 lakh vehicles per year","About 2.5 lakh vehicles per year"], answer:0},
+
+{q:"Qualcomm Technologies and Amazon Web Services (AWS) announced a partnership to develop customised AI chips for AWS data centres, focusing on AI inference and high-speed optical connectivity. What is the maximum optical connectivity speed mentioned for the technology?", options:["Up to 1.2 Tbps","Up to 1.6 Tbps","Up to 2.0 Tbps","Up to 1.8 Tbps"], answer:1},
+
+{q:"The Qualcomm–Amazon partnership involves multi-generation chip development, Qualcomm SerDes and optical Digital Signal Processor (DSP) technologies, and Amazon Bedrock for Electronic Design Automation (EDA) workloads. Who is the President and CEO of Qualcomm mentioned in the details?", options:["Prasad Kalyanaraman","Cristiano Amon","Jensen Huang","Lisa Su"], answer:1},
+
+{q:"Samtel Avionics Ltd and Japan-based BULL Co. Ltd signed an MoU to jointly explore space-debris mitigation solutions. Their collaboration combines BULL's passive Post-Mission Disposal (PMD) technology with Samtel's technology for which capability?", options:["Active Space Debris Removal Vehicle (DRV) technology","Reusable Satellite Launch Vehicle technology","Geostationary Satellite Servicing technology","Space-Based Solar Power technology"], answer:0},
+
+{q:"The Samtel Avionics–BULL partnership aims to support sustainable orbital operations and responsible use of outer space by integrating passive disposal and active debris-removal technologies. What does PMD stand for in this context?", options:["Post-Mission Disposal","Pre-Mission Deployment","Post-Mission Detection","Passive Mission De-orbiting"], answer:0},
+
+{q:"Kishor Makwana, Chairman of the National Commission for Scheduled Castes (NCSC), received the Dr. APJ Abdul Kalam Jan Seva Puraskar 2026 in New Delhi on 9 September 2026. The award recognised his contribution to public service, social justice, equality, dignity and constitutional safeguards for which community?", options:["Scheduled Castes","Scheduled Tribes","Other Backward Classes","Religious Minorities"], answer:0},
+
+{q:"The National Commission for Scheduled Castes (NCSC), whose Chairman Kishor Makwana received the Dr. APJ Abdul Kalam Jan Seva Puraskar 2026, is a constitutional body established under which Article of the Constitution?", options:["Article 338","Article 340","Article 342","Article 344"], answer:0},
+
+{q:"India's first advanced Ocean Research Vessel (ORV), Sagar Manthan (Yard 3041), was launched under the Deep Ocean Mission and is intended for multidisciplinary ocean research, survey and exploration. Who designed and built this vessel?", options:["Garden Reach Shipbuilders & Engineers (GRSE)","Cochin Shipyard Limited (CSL)","Hindustan Shipyard Limited (HSL)","Mazagon Dock Shipbuilders Limited (MDL)"], answer:0},
+
+{q:"Sagar Manthan, India's indigenous advanced Ocean Research Vessel (ORV), will gradually replace the 43-year-old ORV Sagar Kanya, which was procured from Germany in 1983. Under which vertical of the Deep Ocean Mission was Sagar Manthan developed?", options:["Vertical-2 – Deep Ocean Climate Research","Vertical-3 – Ocean Resources Development","Vertical-4 – Deep Ocean Survey & Exploration","Vertical-5 – Marine Biotechnology"], answer:2},
+
+{q:"The newly launched ORV Sagar Manthan was built at a cost of approximately ₹840 crore and is intended for the National Centre for Polar and Ocean Research (NCPOR). What service life has been specified for the vessel?", options:["20 years","25 years","30 years","35 years"], answer:2},
+
+{q:"Akasa Air operated its first commercial flight using a 1% blend of Sustainable Aviation Fuel (SAF) with conventional Aviation Turbine Fuel (ATF), following its July 2026 MoU with Bharat Petroleum Corporation Limited (BPCL). What was the route of this flight?", options:["Mumbai to Goa","Delhi to Goa","Mumbai to Bengaluru","Pune to Goa"], answer:0},
+
+{q:"India has set a target of achieving 5% Sustainable Aviation Fuel (SAF) blending by 2030, while the global aviation sector has a net-zero carbon emissions target for 2050. Compared with conventional aviation fuel, what is the primary purpose of SAF?", options:["To lower lifecycle greenhouse-gas emissions","To increase aircraft cruising speed","To eliminate the need for Aviation Turbine Fuel completely","To reduce aircraft manufacturing costs"], answer:0},
+
+{q:"International Literacy Day is observed annually on 8 September under UNESCO. The 2026 observance marked the 60th anniversary of its proclamation and carried the theme “Literacy for people, the planet and prosperity”. In which year was the first observance held?", options:["1965","1966","1967","1968"], answer:2},
+
+{q:"International Literacy Day originated from a proposal made at the World Congress of Ministers of Education on Eradication of Illiteracy held in Tehran in 1965, followed by adoption at UNESCO's 14th General Conference in Paris in 1966. Where was the 2026 global celebration held?", options:["Chiapas, Mexico","Paris, France","Tehran, Iran","Bangkok, Thailand"], answer:0},
+
+{q:"The International Day to Protect Education from Attack is observed on 9 September to raise awareness about protecting students, teachers, schools and educational institutions in conflict-affected areas. Which UN General Assembly resolution established this observance?", options:["A/RES/74/275","A/RES/77/241","A/RES/74/212","A/RES/75/275"], answer:0},
+
+{q:"The International Day to Protect Education from Attack was established by the United Nations General Assembly in 2020 following an initiative introduced by Qatar and co-sponsored by 62 countries. Which two UN organisations facilitate the observance?", options:["UNESCO and UNICEF","UNESCO and UNDP","UNICEF and UNHCR","UNDP and WHO"], answer:0},
+
+{q:"The Bihar Industries Department signed an MoU with UAE-based AIM Global Foundation to establish a dedicated food processing park, with Bihar providing land, infrastructure, Single Window support and policy incentives. Where was the MoU signed?", options:["Abu Dhabi, UAE","Dubai, UAE","Sharjah, UAE","Doha, Qatar"], answer:1},
+
+{q:"The proposed Bihar–AIM Global Foundation food processing park is intended to develop an integrated agro-food and processing cluster, attract UAE/Gulf investments and strengthen Bihar's position in global food supply chains. Which of the following is specifically identified as a role of AIM Global Foundation?", options:["Providing land and state infrastructure","Mobilising UAE investors and food-processing/allied companies","Providing Bihar's Single Window clearance system","Managing Bihar's agricultural procurement operations"], answer:1},
+
+{q:"Bihar, which signed the MoU with UAE-based AIM Global Foundation for a dedicated food processing park, is an eastern Indian state with Patna as its capital. On which date was Bihar formed according to the given static details?", options:["22 March 1912","1 April 1936","15 November 2000","26 January 1950"], answer:0},
+
+{q:"The Qualcomm–Amazon partnership is intended to build scalable and cost-efficient data-centre infrastructure using customised AI chips, optical connectivity and Electronic Design Automation (EDA) workloads. Which company's data-centre ecosystem was stated to be worth over USD 60 billion?", options:["Qualcomm Technologies","Amazon Web Services (AWS)","Microsoft Azure","Google Cloud"], answer:1},
+
+
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
